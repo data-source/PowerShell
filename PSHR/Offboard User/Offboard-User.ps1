@@ -85,113 +85,113 @@ $EmployeeDetails = Get-ADUser $Employee -properties *
 #Move to Extended Leave OU if leave is temporary
 if ($tol -eq "Temporary" ) {
 Try {
-"Step1. Modifying user description for audit purposes"
-Set-ADUser $Employee -Description "Disabled by $($DisabledBy.name) on $DisabledDate Ticket $issue"
-$Reply = "Processing User Description: Disabled by $($DisabledBy.name) on $DisabledDate for Ticket $issue" 
-Write-Log "$Reply"
-JiraComment -issue $issue -comment "$Reply"
+	"Step1. Modifying user description for audit purposes"
+	Set-ADUser $Employee -Description "Disabled by $($DisabledBy.name) on $DisabledDate Ticket $issue"
+	$Reply = "Processing User Description: Disabled by $($DisabledBy.name) on $DisabledDate for Ticket $issue" 
+	Write-Log "$Reply"
+	JiraComment -issue $issue -comment "$Reply"
 
-"Step2. Disabling $Employee Active Directory Account."
-Disable-ADAccount $Employee -ErrorAction Stop
+	"Step2. Disabling $Employee Active Directory Account."
+	Disable-ADAccount $Employee -ErrorAction Stop
         $Reply = "Disabled AD Account" 
-		Write-Log "$Reply"
-		JiraComment -issue $issue -comment "$Reply"
+	Write-Log "$Reply"
+	JiraComment -issue $issue -comment "$Reply"
 
-"Step3. Moving $Employee to the Extended Leave OU."
-    Move-ADObject -Identity $EmployeeDetails.DistinguishedName -targetpath "OU=Extended Leave,OU=Disabled User Accounts,OU=User Account,OU=Accounts,OU=COMPANY OU,DC=company,DC=com" -ErrorAction Stop
+	"Step3. Moving $Employee to the Extended Leave OU."
+    	Move-ADObject -Identity $EmployeeDetails.DistinguishedName -targetpath "OU=Extended Leave,OU=Accounts,OU=COMPANY OU,DC=company,DC=com" -ErrorAction Stop
         Write-Log "$Reply"
         JiraComment -issue $issue -comment "$Reply"
         }
 Catch {
 	$ErrorMessage = $_.Exception.InnerException
-    $Reply = "Something went wrong, please check Error: $ErrorMessage "
-    Write-Log "$Reply"
+    	$Reply = "Something went wrong, please check Error: $ErrorMessage "
+    	Write-Log "$Reply"
 	JiraComment -issue $issue -comment "$Reply"
-    SendToError    
+    	SendToError    
 }
 
 }
 Else {
     Try {
-		"Refreshing Employee Details for Exchange Modification."
-		Get-ADUser $Employee -Properties Description | Format-List Name, Enabled, Description
+	"Refreshing Employee Details for Exchange Modification."
+	Get-ADUser $Employee -Properties Description | Format-List Name, Enabled, Description
 
-		"Step 1. Setting Exchange Out Of Office Auto-Responder."
-		Set-MailboxAutoReplyConfiguration -Identity $EmployeeDetails.Mail -AutoReplyState enabled -ExternalAudience all -InternalMessage "Please note that I no longer work for company as of $LeaveDate."
+	"Step 1. Setting Exchange Out Of Office Auto-Responder."
+	Set-MailboxAutoReplyConfiguration -Identity $EmployeeDetails.Mail -AutoReplyState enabled -ExternalAudience all -InternalMessage "Please note that I no longer work for company as of $LeaveDate."
         $Reply = "Set Exchange Out Of Office Auto-Responder"
         Write-Log "$Reply"
         JiraComment -issue $issue -comment "$Reply"
 
-		"Step 2. Disabling POP,IMAP, OWA and ActiveSync access for $User" 
-		Set-CasMailbox -Identity $EmployeeDetails.mail -OWAEnabled $false -POPEnabled $false -ImapEnabled $false -ActiveSyncEnabled $false
+	"Step 2. Disabling POP,IMAP, OWA and ActiveSync access for $User" 
+	Set-CasMailbox -Identity $EmployeeDetails.mail -OWAEnabled $false -POPEnabled $false -ImapEnabled $false -ActiveSyncEnabled $false
         $Reply = "Disabled POP, IMAP, OWA and ActiveSync"
         Write-Log "$Reply"
         JiraComment -issue $issue -comment "$Reply"
 
-		"Step 3. Reclaim Licence" 
-		$msolUser = "$user$UPNSufix"
-		$userLicense = Get-MsolUser -UserPrincipalName $msolUser
-		Set-MsolUserLicense -UserPrincipalName "$user$UPNSufix" -RemoveLicenses LayaHealthcare:ENTERPRISEWITHSCAL
+	"Step 3. Reclaim Licence" 
+	$msolUser = "$user$UPNSufix"
+	$userLicense = Get-MsolUser -UserPrincipalName $msolUser
+	Set-MsolUserLicense -UserPrincipalName "$user$UPNSufix" -RemoveLicenses Company:ENTERPRISEWITHSCAL
         $Reply = "Reclaimed O365 License"
         Write-Log "$Reply"
         JiraComment -issue $issue -comment "$Reply"
      
-		"Step 4. Placing mailbox $($EmployeeDetails.name) into Litigation hold for 30 days" 
-		Set-Mailbox -Identity $EmployeeDetails.mail -LitigationHoldEnabled $true -LitigationHoldDuration 30
+	"Step 4. Placing mailbox $($EmployeeDetails.name) into Litigation hold for 30 days" 
+	Set-Mailbox -Identity $EmployeeDetails.mail -LitigationHoldEnabled $true -LitigationHoldDuration 30
         $Reply = "User mailbox placed in litigation hold for 30 days"
         Write-Log "$Reply"
         JiraComment -issue $issue -comment "$Reply"
 
-		"Step 5. Hiding $($EmployeeDetails.name) from Global Address lists" 
-		Set-Mailbox -Identity $EmployeeDetails.mail -HiddenFromAddressListsEnabled $true -Verbose
+	"Step 5. Hiding $($EmployeeDetails.name) from Global Address lists" 
+	Set-Mailbox -Identity $EmployeeDetails.mail -HiddenFromAddressListsEnabled $true -Verbose
         $Reply = "Recipient hidden from Global Address List"
         Write-Log "$Reply"
         JiraComment -issue $issue -comment "$Reply"
 
-		#Connect to LyncFront 
-		$Username = "domain\lync-admin"
-		$Password = Get-Content c:\scripts\ps\PSHR-Credentials\lyncfront.txt | convertto-securestring
-		$Cred = new-object System.Management.Automation.PSCredential ($Username, $Password)
-		$LyncSession = New-PSSession -ConnectionUri https://lyncfront.company.com/ocsPowerShell -Credential $Cred
-		Import-PsSession $LyncSession -AllowClobber
+	#Connect to LyncFront 
+	$Username = "domain\lync-admin"
+	$Password = Get-Content c:\scripts\ps\PSHR-Credentials\lyncfront.txt | convertto-securestring
+	$Cred = new-object System.Management.Automation.PSCredential ($Username, $Password)
+	$LyncSession = New-PSSession -ConnectionUri https://lyncfront.company.com/ocsPowerShell -Credential $Cred
+	Import-PsSession $LyncSession -AllowClobber
 
-		"Step 6. Disabling Lync"
-		Disable-CsUser -Identity "$name"
+	"Step 6. Disabling Lync"
+	Disable-CsUser -Identity "$name"
         $Reply = "Disabled Lync"
         Write-Log "$Reply"
         JiraComment -issue $issue -comment "$Reply"
     
-		"Step 7.Delete Active Directory User Account " 
-		Remove-ADUser $user -confirm:$false
+	"Step 7.Delete Active Directory User Account " 
+	Remove-ADUser $user -confirm:$false
         $Reply = "Deleted AD user account"
         Write-Log "$Reply"
         JiraComment -issue $issue -comment "$Reply"
 }
 Catch {
-		$ErrorMessage = $_.Exception.InnerException
-		$Reply = "Something went wrong, please check Error: $ErrorMessage "
-		Write-Log "$Reply"
-		JiraComment -issue $issue -comment "$Reply"
-		SendToError
+	$ErrorMessage = $_.Exception.InnerException
+	$Reply = "Something went wrong, please check Error: $ErrorMessage "
+	Write-Log "$Reply"
+	JiraComment -issue $issue -comment "$Reply"
+	SendToError
 	}
 }
-		"Step 8. Delete Citrix folders"
-		# Search for user folder on Citrix file server and delete
-		$server = "\\Server"
-		$locations = @("$server\e$\UserFolderRedir","$server\e$\UsersProfileDEV2016","$server\e$\UsersProfiles","$server\f$\OutlookOSTs")
-		$hasfolder = Test-Path -Path $locations -Filter $user
-		If ($hasfolder -eq $true) {
-			"Processing Citrix folder deletion for $user" 
-			ForEach ($location in $locations) {
-				Try {
+	"Step 8. Delete Citrix folders"
+	# Search for user folder on Citrix file server and delete
+	$server = "\\Server"
+	$locations = @("$server\e$\UserFolderRedir","$server\e$\UsersProfileDEV2016","$server\e$\UsersProfiles","$server\f$\OutlookOSTs")
+	$hasfolder = Test-Path -Path $locations -Filter $user
+	If ($hasfolder -eq $true) {
+		"Processing Citrix folder deletion for $user" 
+		ForEach ($location in $locations) {
+			Try {
 				Get-ChildItem -Path $location -Recurse -Filter $user | Remove-Item -Recurse -Force -ErrorAction stop
 				}
 				Catch {
-				$ErrorMessage = $_.Exception.InnerException
-				$Reply = "Something went wrong on $user, please check Error: $ErrorMessage "
-				Write-Log  "$Reply"
-				JiraComment -issue $issue -comment "$Reply"
-				SendToError    
+					$ErrorMessage = $_.Exception.InnerException
+					$Reply = "Something went wrong on $user, please check Error: $ErrorMessage "
+					Write-Log  "$Reply"
+					JiraComment -issue $issue -comment "$Reply"
+					SendToError    
 				}
 			}
 			$Reply = "Processed Citrix folder deletion for $user "
@@ -202,23 +202,23 @@ Catch {
 			"No Citrix folder to delete on Server"
 		}
 		
-		"Step 9. Delete H Drive"
-		# Search for user folder on FSPServer and delete
-		$server = "\\FSPServer"
-		$locations = @("$server\Users","$server\User Shares")
-		$hasfolder = Test-Path -Path $locations -Filter $user
-		If ($hasfolder -eq $true) {
+	"Step 9. Delete H Drive"
+	# Search for user folder on FSPServer and delete
+	$server = "\\FSPServer"
+	$locations = @("$server\Users","$server\User Shares")
+	$hasfolder = Test-Path -Path $locations -Filter $user
+	If ($hasfolder -eq $true) {
 			"Processing H Drive deletion for $user" 
 			ForEach ($location in $locations) {
 				Try {
 				Get-ChildItem -Path $location -Filter $user | Remove-Item -Recurse -Force -ErrorAction stop 
 				}
 				Catch {
-				$ErrorMessage = $_.Exception.InnerException
-				$Reply = "Something went wrong on $user, please check Error: $ErrorMessage "
-				Write-Log  "$Reply"
-				JiraComment -issue $issue -comment "$Reply"
-				SendToError    
+					$ErrorMessage = $_.Exception.InnerException
+					$Reply = "Something went wrong on $user, please check Error: $ErrorMessage "
+					Write-Log  "$Reply"
+					JiraComment -issue $issue -comment "$Reply"
+					SendToError    
 				}
 			}
 			$Reply = "Processed H Drive folder deletion for $user "
