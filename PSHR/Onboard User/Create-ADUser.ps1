@@ -141,9 +141,9 @@ if (!$error) {
     }
 else {
     $Reply = "Issue caught while attempting to create AD Account: $ErrorMessage "
-	JiraComment -issue $issue -comment "$Reply"
-	Write-Log "$Reply"
-	SendToError
+    JiraComment -issue $issue -comment "$Reply"
+    Write-Log "$Reply"
+    SendToError
     exit
 } 
 $global:ErrorActionPreference=$saved
@@ -163,8 +163,8 @@ if (!$error) {
     }
 else {
     $Reply = "Issue caught while attempting to assign ChangePasswordAtLogon: $ErrorMessage "
-	JiraComment -issue $issue -comment "$Reply"
-	Write-Log "$Reply"
+    JiraComment -issue $issue -comment "$Reply"
+    Write-Log "$Reply"
     #No transition to Error status here as it's not a critical error./ 
 }
 }
@@ -183,9 +183,9 @@ if (!$error) {
 }
 else {
     $Reply = "Issue caught while attempting to map H:Drive: $ErrorMessage - However automation Process was not stopped, please fix manually"
-	JiraComment -issue $issue -comment "$Reply"
-	Write-Log "$Reply"
-	#No transition to Error status here as it's not a critical error./ 
+    JiraComment -issue $issue -comment "$Reply"
+    Write-Log "$Reply"
+    #No transition to Error status here as it's not a critical error./ 
 }
 }
 
@@ -206,8 +206,8 @@ if (!$error) {
 else { 
     $Reply = "Issue caught while attempting to create H:Drive: $ErrorMessage - However automation Process was not stopped, please fix manually"
     JiraComment -issue $issue -comment "$Reply"
-	Write-Log "$Reply"
-	#No transition to Error status here as it's not a critical error./ 
+    Write-Log "$Reply"
+    #No transition to Error status here as it's not a critical error./ 
 }
 }
 
@@ -231,9 +231,9 @@ $ErrorMessage = $_.Exception.InnerException
 Finally {
 if (!$error) {
         Write-Log "Account expiry: No Error Occured"
-		$setexpiry = (Get-ADUser -Identity $User -Properties AccountExpirationDate | Select-Object -Property SamAccountName, AccountExpirationDate)
-		$Reply = "Set expiry as $setexpiry" 
-		JiraComment -issue $issue -comment "$Reply"
+	$setexpiry = (Get-ADUser -Identity $User -Properties AccountExpirationDate | Select-Object -Property SamAccountName, AccountExpirationDate)
+	$Reply = "Set expiry as $setexpiry" 
+	JiraComment -issue $issue -comment "$Reply"
     }
 	else {
 		$Reply = "Issue caught while attempting to set account expiry: $ErrorMessage - However automation Process was not stopped, please fix manually"
