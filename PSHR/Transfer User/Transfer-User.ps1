@@ -1,15 +1,15 @@
 #Load Incoming JSON
 	param (
-        [string]$user = 'defaultUPN',
-        [string]$title = 'default title',
-        [string]$description = ' default description',
-	      [string]$department = 'default department',
-		    [string]$dept = 'old department',
-	      [string]$manager = 'default manager',
-		    [string]$userdn = 'User DN',
-	      [string]$adpath = 'CN=Users,DC=COMPANY,DC=COM',
-		    [string]$script = 'defaultscript.bat',
-		    [string]$issue = 'SD-000'
+        	[string]$user = 'defaultUPN',
+        	[string]$title = 'default title',
+        	[string]$description = ' default description',
+	      	[string]$department = 'default department',
+		[string]$dept = 'old department',
+	      	[string]$manager = 'default manager',
+		[string]$userdn = 'User DN',
+	      	[string]$adpath = 'CN=Users,DC=COMPANY,DC=COM',
+		[string]$script = 'defaultscript.bat',
+		[string]$issue = 'SD-000'
     )
 
 #Load Functions
@@ -196,7 +196,7 @@ $error.clear()
 Try {
     $global:ErrorActionPreference = 'stop'
     "Moving user: $User to its new OU: $adpath"
-	Move-ADObject -Identity $userdn -TargetPath $adpath -ErrorAction Stop
+    Move-ADObject -Identity $userdn -TargetPath $adpath -ErrorAction Stop
 }
 Catch {
     $ErrorMessage = $_.Exception.InnerException
