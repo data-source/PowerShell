@@ -94,7 +94,7 @@ Catch {
 Finally {
 if (!$error) {
         $Reply = "Office 365 user created, locale set to UK"
-		Write-Log "$Reply"
+	Write-Log "$Reply"
         JiraComment -issue $issue -comment "$Reply"
 }
 else {
@@ -121,7 +121,7 @@ Finally {
 if (!$error) {
         $Reply = "User License assigned"
         Write-Log "$Reply"
-		JiraComment -issue $issue -comment "$Reply"
+	JiraComment -issue $issue -comment "$Reply"
     }
 	else {
 		$Reply = "Issue caught while attempting to assign License: $ErrorMessage "
@@ -145,7 +145,7 @@ Catch {
 Finally {
 if (!$error) {
         $Reply = "6 Month Archive Policy Set"
-		Write-Log "$Reply"
+	Write-Log "$Reply"
         JiraComment -issue $issue -comment "$Reply"
     }
 	else {
@@ -169,7 +169,7 @@ Catch {
 Finally {
 if (!$error) {
         $Reply = "ActiveSync successfully disabled"
-		Write-Log "$Reply"
+	Write-Log "$Reply"
         JiraComment -issue $issue -comment "$Reply"
     }
 	else {
