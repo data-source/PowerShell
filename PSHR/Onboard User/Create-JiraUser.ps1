@@ -1,11 +1,11 @@
 #Load Incoming JSON
 param (
         [string]$user = 'defaultUPN',
-		[string]$firstname = 'default firstname',
-	    [string]$lastname = ' default lastname',
-		[string]$email = ' user@company.com',
-		[string]$toc = 'permanent',
-		[string]$issue = 'SD-000'
+	[string]$firstname = 'default firstname',
+	[string]$lastname = ' default lastname',
+	[string]$email = ' user@company.com',
+	[string]$toc = 'permanent',
+	[string]$issue = 'SD-000'
     )
 	
 "upn = $upn"
