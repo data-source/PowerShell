@@ -1,12 +1,12 @@
 #Load Incoming JSON
 	param (
-        [string]$user = 'defaultUPN',
-        [string]$name = 'Firstname Lastname',
-	      [string]$firstname = 'default firstname',
-	      [string]$lastname = ' default lastname',
-        [string]$title = 'default title',
-		    [string]$adpath = 'CN=Users,DC=COMPANY,DC=COM',
-		    [string]$issue = 'SD-000'
+        	[string]$user = 'defaultUPN',
+        	[string]$name = 'Firstname Lastname',
+	     	[string]$firstname = 'default firstname',
+	      	[string]$lastname = 'default lastname',
+        	[string]$title = 'default title',
+		[string]$adpath = 'CN=Users,DC=COMPANY,DC=COM',
+		[string]$issue = 'SD-000'
     ) 
 
 #Load Functions
@@ -78,10 +78,10 @@ Write-Log "$Reply"
 }
 Catch {
 	$ErrorMessage = $_.Exception.InnerException
-    $Reply = "Something went wrong, please check Error: $ErrorMessage "
-    Write-Log "$Reply"
+    	$Reply = "Something went wrong, please check Error: $ErrorMessage "
+    	Write-Log "$Reply"
 	JiraComment -issue $issue -comment "$Reply"
-    SendToError
+   	 SendToError
 }
 
 #Reload Jira Session and transition issue to next step
