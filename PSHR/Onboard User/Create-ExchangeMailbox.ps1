@@ -2,7 +2,7 @@
 param (
         [string]$upn = 'defaultUPN',
         [string]$name = 'Firstname Lastname',
-		[string]$issue = 'SD-000'
+	[string]$issue = 'SD-000'
     )
 
 #Load Functions
@@ -147,7 +147,7 @@ Else {
             Write-Output "." -NoNewline
             Start-Sleep -Seconds 10
         }
-		Write-Log " | DirSync Succesfully Completed"
+	Write-Log " | DirSync Succesfully Completed"
     }
     Catch {Write-Error $_}
     $HOST.UI.RawUI.Flushinputbuffer()
