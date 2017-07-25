@@ -1,9 +1,9 @@
 #Load Incoming JSON
 	param (
-        [string]$servername = 'server name',
-		    [string]$cluster = ' Cluster_Dev',
-    	  [string]$template = 'Windows Server 2012 R2 - V1.1',
-	      [string]$issue = 'SD-000'
+        	[string]$servername = 'server name',
+		[string]$cluster = ' Cluster_Dev',
+    	  	[string]$template = 'Windows Server 2012 R2 - V1.1',
+	      	[string]$issue = 'SD-000'
     ) 
 
 #Load Functions
